@@ -7,9 +7,9 @@
 
 //#define DEBUG
 
-UARTLink::UARTLink(std::string port) {
+UARTLink::UARTLink(std::string port, int baud_rate) {
     com_port = RS232_GetPortnr(port.c_str()); /* /dev/ttyS0 (COM1 on windows) */
-    baud_rate = 9600;                         /* 9600 baud */
+    this->baud_rate = baud_rate;              /* 9600 baud */
 
     reading_buffer.size = writing_buffer.size = 0;
     reading_buffer.max_size = 256;
@@ -36,8 +36,14 @@ uint8_t UARTLink::openPort() {
     return port_opened;
 }
 
-void UARTLink::changeBaudRate(int newBaurdRate){
-    closePort();
+void UARTLink::setBaudRate(int newBaurdRate) {
+    baud_rate = newBaurdRate;
+}
+
+void UARTLink::changeBaudRate(int newBaurdRate) {
+    if (port_opened) {
+        closePort();
+    }
     baud_rate = newBaurdRate;
     openPort();
 }
@@ -129,7 +135,7 @@ int UARTLink::waitForFirstResponse(uint64_t timeout) {
     std::chrono::milliseconds ms{1000};
 
     reading_buffer.size = 0;
-    while ((reading_buffer.size == 0) &&  (end - start < ms)) {
+    while ((reading_buffer.size == 0) && (end - start < ms)) {
         end = std::chrono::system_clock::now();
 
         if (port_opened) {

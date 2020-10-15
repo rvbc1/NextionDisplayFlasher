@@ -6,9 +6,11 @@
 #include <stdio.h>
 #include <string.h>
 //#include <termios.h>  // Contains POSIX terminal control definitions
-#include <unistd.h>   // write(), read(), close()
+#include <unistd.h>  // write(), read(), close()
 
 #include <string>
+
+#define DEFAULT_BAUD_RATE 9600
 
 class UARTLink {
    public:
@@ -20,9 +22,11 @@ class UARTLink {
 
     buffer_struct writing_buffer;
 
-    UARTLink(std::string port);
+    // UARTLink(std::string port);
+    UARTLink(std::string port, int baud_rate = DEFAULT_BAUD_RATE);
     uint8_t openPort();
 
+    void setBaudRate(int newBaurdRate);
     void changeBaudRate(int newBaurdRate);
 
     void closePort();
@@ -33,7 +37,6 @@ class UARTLink {
 
     void writeData();
     //void writeData(uint8_t byte);
-
 
     int waitForResponse(uint64_t timeout);
     int waitForFirstResponse(uint64_t timeout);
@@ -65,7 +68,6 @@ class UARTLink {
     void printData(std::string prefix, buffer_struct buffer);
 
     void errorMsg();
-
 };
 
 #endif

@@ -17,7 +17,6 @@ class FileReader {
     file_struct getFile();
 
    private:
-    //std::streampos size;
     uint32_t size;
     char* memblock;
     file_struct file;
