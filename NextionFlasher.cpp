@@ -46,8 +46,6 @@ void NextionFlasher::connect() {
             if (checkConnectResponse())
                 break;
         }
-        
-        //checkConnectResponse();
 
 #if defined(__linux__) || defined(__FreeBSD__) || (__Windows__)
         if (is_connection_open == false) {
