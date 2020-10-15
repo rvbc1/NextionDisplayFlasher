@@ -58,7 +58,7 @@ void UARTLink::addDataToBufferTX(uint8_t data) {
 }
 
 void UARTLink::addDataToBufferTX(std::string data) {
-    for (int i = 0; i < data.size(); i++) {
+    for (int i = 0; i < static_cast<int>(data.size()); i++) {
         addDataToBufferTX(data[i]);
     }
 }
@@ -100,6 +100,7 @@ void UARTLink::writeData() {
 // }
 
 int UARTLink::available() {
+    return 0;
 }
 
 int UARTLink::waitForResponse(uint64_t timeout) {

@@ -101,6 +101,7 @@ uint8_t UART_Link::recieve(){
          qDebug() << s.c_str();
     }
     */
+   return false;
 }
 
 void UART_Link::sendData(){

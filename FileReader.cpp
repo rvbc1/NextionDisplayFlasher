@@ -17,7 +17,7 @@ FileReader::FileReader(std::string file_path) {
 }
 
 void FileReader::printFile() {
-    for (int i = 0; i < file.size; i++) {
+    for (uint32_t i = 0; i < file.size; i++) {
         if (i % 16 == 0) {
             std::cout << std::endl;
         }
