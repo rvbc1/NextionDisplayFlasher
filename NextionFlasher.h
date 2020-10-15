@@ -48,6 +48,7 @@ class NextionFlasher {
     void flashCommand(uint32_t start_address, uint8_t *buffer, uint16_t length);
     void eraseCommand();
 
+
    private:
     uint8_t is_port_open = false;
     uint8_t is_connection_open = false;
@@ -60,6 +61,8 @@ class NextionFlasher {
     void writeCommand(std::string command);
     void writeAddress(uint32_t address);
     uint8_t checkResponse(ack_pos pos = NONE_ACK);
+
+    void checkOpenConnectionResponse();
 };
 
 #endif

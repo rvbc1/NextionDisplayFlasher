@@ -1,7 +1,7 @@
-all: compile
+all: compile run
 
 compile:
-	g++ -o STM32-UART-Flasher -Wall *.cpp *.c
+	g++ -std=c++17 -o Nextion-UART-Flasher -Wall *.cpp *.c
 
 run:
-	./main
+	./Nextion-UART-Flasher.exe Aquael.tft COM4

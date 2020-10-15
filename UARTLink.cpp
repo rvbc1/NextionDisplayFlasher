@@ -5,7 +5,7 @@
 
 #include "rs232.h"
 
-#define DEBUG
+//#define DEBUG
 
 UARTLink::UARTLink(std::string port) {
     com_port = RS232_GetPortnr(port.c_str()); /* /dev/ttyS0 (COM1 on windows) */
@@ -20,7 +20,7 @@ UARTLink::UARTLink(std::string port) {
 }
 
 uint8_t UARTLink::openPort() {
-    char mode[] = {'8', 'E', '1', 0};
+    char mode[] = {'8', 'N', '1', 0};
     if (RS232_OpenComport(com_port, baud_rate, mode, 0)) {
         printf("Can not open comport\n");
         port_opened = false;
@@ -93,11 +93,11 @@ int UARTLink::waitForResponse(uint64_t timeout) {
     std::chrono::milliseconds ms{1000};
 
     reading_buffer.size = 0;
-    while ((reading_buffer.size == 0) && (end - start < ms)) {
+    while (/*(reading_buffer.size == 0) && */(end - start < ms)) {
         end = std::chrono::system_clock::now();
 
         if (port_opened) {
-            reading_buffer.size = RS232_PollComport(com_port, reading_buffer.data, reading_buffer.max_size);
+            reading_buffer.size += RS232_PollComport(com_port, reading_buffer.data + reading_buffer.size, reading_buffer.max_size);
 
         } else {
             errorMsg();

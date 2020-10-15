@@ -2,6 +2,8 @@
 
 #include <chrono>
 #include <iostream>
+#include <sstream>
+#include <vector>
 
 void printInfo(std::string info) {
     std::cout << info << std::endl;
@@ -15,7 +17,7 @@ NextionFlasher::NextionFlasher(std::string port) {
     //writing_buffer = &uart->writing_buffer;
 
     openConnection();
-   // getCommand();
+    // getCommand();
 
     //readMemoryCommand(0x8000000, 0xFF);
     //eraseCommand();
@@ -27,27 +29,63 @@ NextionFlasher::NextionFlasher(std::string port) {
 
 void NextionFlasher::openConnection() {
     if (is_port_open) {
-       // uart->addDataToBufferTX(START_CODE);
-    //    uart->writeData();
-    //    is_connection_open = checkResponse(ACK_AT_BEGIN);
+        // uart->addDataToBufferTX(START_CODE);
+        //    uart->writeData();
+        //    is_connection_open = checkResponse(ACK_AT_BEGIN);
         writeCommand("");
         writeCommand("connect");
 
+        checkOpenConnectionResponse();
 
 #if defined(__linux__) || defined(__FreeBSD__) || (__Windows__)
-        if (is_connection_open == false){
+        if (is_connection_open == false) {
             printInfo("Cannot start comunication with uC");
             printInfo("Check wiring & set bootloader at chip");
             exit(1);
         }
 #endif
+    }
+}
 
+void NextionFlasher::checkOpenConnectionResponse() {
+    buffer->size = uart->waitForResponse(500);
+
+    std::string respone;
+    for (int i = 0; i < buffer->size; i++) {
+        respone += buffer->data[i];
+    }
+    //  std::cout << respone;
+
+    std::vector<std::string> strings;
+    std::istringstream f(respone);
+    std::string s;
+    while (getline(f, s, ' ')) {
+        strings.push_back(s);
+    }
+
+    if ((strings.size() == 2) && (strings[0] == "comok")) {
+        std::cout << "Connection ok!\n";
+        std::vector<std::string> deviceInfo;
+        std::istringstream f2(strings[1]);
+        std::string s2;
+        while (getline(f2, s2, ',')) {
+            deviceInfo.push_back(s2);
+        }
+        if (deviceInfo.size() == 7) {
+            std::cout << "Nextion touch: " << deviceInfo[0] << std::endl;
+            std::cout << "Nextion address: " << deviceInfo[1] << std::endl;
+            std::cout << "Nextion model: " << deviceInfo[2] << std::endl;
+            std::cout << "Nextion firmware: " << deviceInfo[3] << std::endl;
+            std::cout << "Nextion MCU: " << deviceInfo[4] << std::endl;
+            std::cout << "Nextion serial: " << deviceInfo[5] << std::endl;
+            std::cout << "Nextion flash size: " << deviceInfo[6] << std::endl;
+        }
     }
 }
 
 void NextionFlasher::getCommand() {
     if (is_port_open && is_connection_open) {
-     //   writeCommand(GET_COMMAND);
+        //   writeCommand(GET_COMMAND);
         checkResponse();
 
         std::cout << "Frame size: " << std::dec << +buffer->data[1] << std::endl;
@@ -57,21 +95,21 @@ void NextionFlasher::getCommand() {
 
 void NextionFlasher::getVersionCommand() {
     if (is_port_open && is_connection_open) {
-       // writeCommand(GET_VERSION_COMMAND);
+        // writeCommand(GET_VERSION_COMMAND);
         checkResponse();
     }
 }
 
 void NextionFlasher::getIdCommand() {
     if (is_port_open && is_connection_open) {
-       // writeCommand(GET_ID_COMMAND);
+        // writeCommand(GET_ID_COMMAND);
         checkResponse();
     }
 }
 
 void NextionFlasher::readMemoryCommand(uint32_t start_address, uint8_t length) {
     if (is_port_open && is_connection_open) {
-       // writeCommand(READ_MEMORY_COMMAND);
+        // writeCommand(READ_MEMORY_COMMAND);
         checkResponse();
 
         // writing_buffer->data[0] = *((uint8_t *) &start_address + 3);
@@ -121,16 +159,16 @@ void NextionFlasher::flashCommand(uint32_t start_address, uint8_t *buffer, uint1
 
 void NextionFlasher::eraseCommand() {
     if (is_port_open && is_connection_open) {
-       // writeCommand(ERASE_COMMAND);
+        // writeCommand(ERASE_COMMAND);
         checkResponse();
 
-       // writeCommand(FULL_CHIP_ERASE_COMMAND);
+        // writeCommand(FULL_CHIP_ERASE_COMMAND);
         checkResponse();
     }
 }
 
 void NextionFlasher::writeCommand(std::string command) {
-    if (is_port_open && is_connection_open) {
+    if (is_port_open) {
         //uart->addDataToBufferTX(command);
         //uart->addDataToBufferTX(~command);
         uart->addDataToBufferTX(command);
@@ -142,7 +180,14 @@ void NextionFlasher::writeCommand(std::string command) {
 }
 
 void NextionFlasher::flashFile(FileReader::file_struct file) {
-    flashFile(file.data, file.size);
+    //flashFile(file.data, file.size);
+    std::string string = "";
+    std::string cmd = "";
+
+    std::string filesize_str = std::string(1564, 10);
+    std::string baudrate_str = std::string(9600, 10);
+    cmd = "whmi-wri " + filesize_str + "," + baudrate_str + ",0";
+    std::cout << cmd;
 }
 
 void NextionFlasher::flashFile(uint8_t *data, uint16_t size) {
