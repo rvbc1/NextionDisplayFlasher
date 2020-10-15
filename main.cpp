@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
 
         FileReader *file = new FileReader(argv[1]);
 
-        //flasher->flashFile(file->getFile());
+        flasher->flashFile(file->getFile());
     } else {
         std::cout << "Invalid parameters" << std::endl;
         std::cout << "Right use " << argv[0] << " <file> <port>" << std::endl;

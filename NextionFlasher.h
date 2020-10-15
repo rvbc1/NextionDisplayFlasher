@@ -15,7 +15,7 @@ class NextionFlasher {
     void readChip();
 
     void flashFile(FileReader::file_struct file);
-    void flashFile(uint8_t *data, uint16_t size);
+    void flashFile(uint8_t *data, uint32_t size);
 
    private:
     static const uint8_t START_CODE =              0x7F;

@@ -1,22 +1,24 @@
 #include "FileReader.h"
 
-#include <iostream>
-#include <fstream>
-#include <filesystem>
-
-namespace fs = std::filesystem;
-
 FileReader::FileReader(std::string file_path) {
     // std::streampos size;
     // char* memblock;
 
     std::ifstream file(file_path, std::ios::in | std::ios::binary | std::ios::ate);
     if (file.is_open()) {
-        fs::path p = fs::current_path() / file_path;
-        // std::ofstream(p).put('a');  // create file of size 1
-         std::cout << "File size = " << fs::file_size(p) << '\n';
-        // fs::remove(p);
+        size = file.tellg();
+        memblock = new char[size];
+        file.seekg(0, std::ios::beg);
+        file.read(memblock, size);
+        file.close();
 
+       // std::cout << "the entire file content is in memory, " << std::dec << size << " bytes";
+        //printFile();
+
+        //delete[] memblock;
+        this->file.size = size;
+        //std::cout << "fileReader file size " << this->file.size;
+        this->file.data = (uint8_t*) memblock;
     } else
         std::cout << "Unable to open file";
 }
@@ -49,6 +51,6 @@ void FileReader::printPages() {
     std::cout << "because " << pages << " * 256 + " << unfull_page_size << " = " << pages * 256 << " + " << unfull_page_size << " = " << pages * 256 + unfull_page_size << std::endl;
 }
 
-FileReader::file_struct FileReader::getFile() {
+FileReader::file_struct FileReader::getFile(){
     return file;
 }

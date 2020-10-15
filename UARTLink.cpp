@@ -5,11 +5,11 @@
 
 #include "rs232.h"
 
-//#define DEBUG
+#define DEBUG
 
 UARTLink::UARTLink(std::string port) {
     com_port = RS232_GetPortnr(port.c_str()); /* /dev/ttyS0 (COM1 on windows) */
-    baud_rate = 9600;                       /* 9600 baud */
+    baud_rate = 9600;                         /* 9600 baud */
 
     reading_buffer.size = writing_buffer.size = 0;
     reading_buffer.max_size = 256;
@@ -37,12 +37,16 @@ uint8_t UARTLink::openPort() {
 }
 
 void UARTLink::addDataToBufferTX(uint8_t data) {
-    writing_buffer.data[writing_buffer.size] = data;
-    writing_buffer.size++;
+    if (writing_buffer.size < writing_buffer.max_size) {
+        writing_buffer.data[writing_buffer.size] = data;
+        writing_buffer.size++;
+    } else {
+        std::cout << "writing buffer is full\n";
+    }
 }
 
 void UARTLink::addDataToBufferTX(std::string data) {
-    for(int i = 0; i < data.size(); i++){
+    for (int i = 0; i < data.size(); i++) {
         addDataToBufferTX(data[i]);
     }
 }
@@ -58,7 +62,7 @@ void UARTLink::setSpeed() {
 
 void UARTLink::writeData() {
 #ifdef DEBUG
-printData("<< ", writing_buffer);
+    printData("<< ", writing_buffer);
 #endif
 
     if (port_opened) {
@@ -93,7 +97,7 @@ int UARTLink::waitForResponse(uint64_t timeout) {
     std::chrono::milliseconds ms{1000};
 
     reading_buffer.size = 0;
-    while (/*(reading_buffer.size == 0) && */(end - start < ms)) {
+    while (/*(reading_buffer.size == 0) && */ (end - start < ms)) {
         end = std::chrono::system_clock::now();
 
         if (port_opened) {
@@ -118,15 +122,14 @@ void UARTLink::errorMsg() {
     std::cout << "Port is not open!" << std::endl;
 }
 
-void UARTLink::printData(std::string prefix, buffer_struct buffer){
+void UARTLink::printData(std::string prefix, buffer_struct buffer) {
     std::cout << prefix;
     for (int i = 0; i < buffer.size; i++) {
-        if(buffer.data[i] <= 0x0F){
+        if (buffer.data[i] <= 0x0F) {
             std::cout << "0x0" << std::hex << (int)buffer.data[i] << " ";
         } else {
             std::cout << "0x" << std::hex << (int)buffer.data[i] << " ";
         }
-
     }
     std::cout << std::endl;
 }

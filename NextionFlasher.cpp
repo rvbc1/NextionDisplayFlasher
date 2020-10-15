@@ -184,25 +184,53 @@ void NextionFlasher::flashFile(FileReader::file_struct file) {
     std::string string = "";
     std::string cmd = "";
 
-    std::string filesize_str = std::string(1564, 10);
-    std::string baudrate_str = std::string(9600, 10);
+    std::string filesize_str = std::to_string(file.size);
+    std::string baudrate_str = std::to_string(9600);
     cmd = "whmi-wri " + filesize_str + "," + baudrate_str + ",0";
-    std::cout << cmd;
+    //std::cout << cmd;
+    writeCommand("");
+    writeCommand(cmd);
+
+    buffer->size = uart->waitForResponse(500);
+
+    if ((buffer->size == 1) && (buffer->data[0] == 0x05)) {
+        std::cout << "staring flashing from file";
+    }
+    std::cout << "file size " << std::dec << file.size << std::endl;
+
+    uint32_t packets_amount = (file.size / 4096);
+    for (int i = 0; i <= packets_amount; i++) {
+        for (int j = 0; j < 4096; j++) {
+            int byte_index = j + 4096 * i;
+            if (byte_index == file.size) {
+                goto out;
+            }
+            uart->addDataToBufferTX(file.data[byte_index]);
+        }
+        //std::cout << std::dec << uart->writing_buffer.size << "\n";
+        uart->writeData();
+        buffer->size = uart->waitForResponse(500);
+
+        if (!((buffer->size == 1) && (buffer->data[0] == 0x05))) {
+            std::cout << "no confirming byte in response for flashing packet\n";
+        }
+    }
+out:;
 }
 
-void NextionFlasher::flashFile(uint8_t *data, uint16_t size) {
-    if (is_port_open && is_connection_open) {
-        uint16_t pages = size / 256;
-        uint16_t unfull_page_size = size - pages * 256;
-        uint32_t address = 0;
-        eraseCommand();
-        for (int page_counter = 0; page_counter < pages; page_counter++, address += 256) {
-            flashCommand(0x8000000 + address, &data[address], 0xff);
-        }
-        flashCommand(0x8000000 + address, &data[address], unfull_page_size - 1);
+void NextionFlasher::flashFile(uint8_t *data, uint32_t size) {
+    // if (is_port_open && is_connection_open) {
+    //     uint16_t pages = size / 256;
+    //     uint16_t unfull_page_size = size - pages * 256;
+    //     uint32_t address = 0;
+    //     eraseCommand();
+    //     for (int page_counter = 0; page_counter < pages; page_counter++, address += 256) {
+    //         flashCommand(0x8000000 + address, &data[address], 0xff);
+    //     }
+    //     flashCommand(0x8000000 + address, &data[address], unfull_page_size - 1);
 
-        goCommand(0x8000000);
-    }
+    //     goCommand(0x8000000);
+    // }
 }
 
 void NextionFlasher::writeAddress(uint32_t address) {

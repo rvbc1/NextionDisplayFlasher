@@ -9,7 +9,7 @@ class FileReader {
    public:
    struct file_struct{
        uint8_t *data;
-       uint16_t size;
+       uint32_t size;
    };
     FileReader(std::string file_path);
     void printFile();
