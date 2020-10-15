@@ -25,7 +25,8 @@ int main(int argc, char *argv[]) {
         flasher->flashFile(file->getFile());
     } else {
         std::cout << "Invalid parameters\n" << std::endl;
-        std::cout << "Right use for device info:" << argv[0] << "<port>" << std::endl;
+        std::cout << "Right use for device info:" << std::endl;
+        std::cout << "  " << argv[0] << "<port>" << std::endl;
         std::cout << "Example: " << argv[0] << " COM4\n" << std::endl;
         std::cout << "Right use for flash:\n" << argv[0] << " <file> <port> <baud_rate>" << std::endl;
         std::cout << "  <baud_rate> is optional, for default program use fastes (921600)" << std::endl;
