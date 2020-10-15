@@ -36,6 +36,12 @@ uint8_t UARTLink::openPort() {
     return port_opened;
 }
 
+void UARTLink::changeBaudRate(int newBaurdRate){
+    closePort();
+    baud_rate = newBaurdRate;
+    openPort();
+}
+
 void UARTLink::addDataToBufferTX(uint8_t data) {
     if (writing_buffer.size < writing_buffer.max_size) {
         writing_buffer.data[writing_buffer.size] = data;
@@ -52,6 +58,7 @@ void UARTLink::addDataToBufferTX(std::string data) {
 }
 
 void UARTLink::closePort() {
+    RS232_CloseComport(com_port);
 }
 
 void UARTLink::setFlags() {
@@ -98,6 +105,31 @@ int UARTLink::waitForResponse(uint64_t timeout) {
 
     reading_buffer.size = 0;
     while (/*(reading_buffer.size == 0) && */ (end - start < ms)) {
+        end = std::chrono::system_clock::now();
+
+        if (port_opened) {
+            reading_buffer.size += RS232_PollComport(com_port, reading_buffer.data + reading_buffer.size, reading_buffer.max_size);
+
+        } else {
+            errorMsg();
+        }
+    }
+#ifdef DEBUG
+    printData(">> ", reading_buffer);
+#endif
+
+    return reading_buffer.size;
+}
+
+int UARTLink::waitForFirstResponse(uint64_t timeout) {
+    auto start = std::chrono::system_clock::now();
+
+    auto end = start;
+
+    std::chrono::milliseconds ms{1000};
+
+    reading_buffer.size = 0;
+    while ((reading_buffer.size == 0) &&  (end - start < ms)) {
         end = std::chrono::system_clock::now();
 
         if (port_opened) {

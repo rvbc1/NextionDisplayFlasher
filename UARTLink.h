@@ -22,6 +22,9 @@ class UARTLink {
 
     UARTLink(std::string port);
     uint8_t openPort();
+
+    void changeBaudRate(int newBaurdRate);
+
     void closePort();
 
     void setFlags();
@@ -33,6 +36,7 @@ class UARTLink {
 
 
     int waitForResponse(uint64_t timeout);
+    int waitForFirstResponse(uint64_t timeout);
 
     void addDataToBufferTX(uint8_t data);
     void addDataToBufferTX(std::string data);
@@ -61,6 +65,7 @@ class UARTLink {
     void printData(std::string prefix, buffer_struct buffer);
 
     void errorMsg();
+
 };
 
 #endif

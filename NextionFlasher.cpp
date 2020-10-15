@@ -184,8 +184,10 @@ void NextionFlasher::flashFile(FileReader::file_struct file) {
     std::string string = "";
     std::string cmd = "";
 
+    int flashingBaudRate = 115200;
+
     std::string filesize_str = std::to_string(file.size);
-    std::string baudrate_str = std::to_string(9600);
+    std::string baudrate_str = std::to_string(flashingBaudRate);
     cmd = "whmi-wri " + filesize_str + "," + baudrate_str + ",0";
     std::cout << cmd;
     writeCommand("");
@@ -196,6 +198,9 @@ void NextionFlasher::flashFile(FileReader::file_struct file) {
     if ((buffer->size == 1) && (buffer->data[0] == 0x05)) {
         std::cout << "staring flashing from file";
     }
+
+    uart->changeBaudRate(flashingBaudRate);
+
     std::cout << "file size " << std::dec << file.size << std::endl;
 
     uint32_t packets_amount = (file.size / 4096);
@@ -207,18 +212,25 @@ void NextionFlasher::flashFile(FileReader::file_struct file) {
             }
             uart->addDataToBufferTX(file.data[byte_index]);
         }
-        std::cout << std::dec << uart->writing_buffer.size << "\n";
+        //  std::cout << std::dec << uart->writing_buffer.size << "\n";
         uart->writeData();
-        buffer->size = uart->waitForResponse(500);
+        buffer->size = uart->waitForFirstResponse(500);
         uart->writing_buffer.size = 0;
 
-        if (!((buffer->size == 1) && (buffer->data[0] == 0x05))) {
+        if ((buffer->size == 1) && (buffer->data[0] == 0x05)) {
+            std::cout << "Packet " << std::dec << i << "/" << packets_amount << " sent\n";
+        } else {
             std::cout << "no confirming byte in response for flashing packet\n";
         }
     }
 out:
     uart->writeData();
-    buffer->size = uart->waitForResponse(500);
+    buffer->size = uart->waitForFirstResponse(500);
+    if ((buffer->size == 1) && (buffer->data[0] == 0x05)) {
+        std::cout << "Packet " << std::dec << packets_amount << "/" << packets_amount << " sent\n";
+    } else {
+        std::cout << "no confirming byte in response for flashing packet\n";
+    }
 }
 
 void NextionFlasher::flashFile(uint8_t *data, uint32_t size) {
