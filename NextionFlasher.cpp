@@ -16,7 +16,7 @@ NextionFlasher::NextionFlasher(std::string port) {
     buffer = uart->getBuff();
     //writing_buffer = &uart->writing_buffer;
 
-    openConnection();
+    // openConnection();
     // getCommand();
 
     //readMemoryCommand(0x8000000, 0xFF);
@@ -187,7 +187,7 @@ void NextionFlasher::flashFile(FileReader::file_struct file) {
     std::string filesize_str = std::to_string(file.size);
     std::string baudrate_str = std::to_string(9600);
     cmd = "whmi-wri " + filesize_str + "," + baudrate_str + ",0";
-    //std::cout << cmd;
+    std::cout << cmd;
     writeCommand("");
     writeCommand(cmd);
 
@@ -207,15 +207,18 @@ void NextionFlasher::flashFile(FileReader::file_struct file) {
             }
             uart->addDataToBufferTX(file.data[byte_index]);
         }
-        //std::cout << std::dec << uart->writing_buffer.size << "\n";
+        std::cout << std::dec << uart->writing_buffer.size << "\n";
         uart->writeData();
         buffer->size = uart->waitForResponse(500);
+        uart->writing_buffer.size = 0;
 
         if (!((buffer->size == 1) && (buffer->data[0] == 0x05))) {
             std::cout << "no confirming byte in response for flashing packet\n";
         }
     }
-out:;
+out:
+    uart->writeData();
+    buffer->size = uart->waitForResponse(500);
 }
 
 void NextionFlasher::flashFile(uint8_t *data, uint32_t size) {

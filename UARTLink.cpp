@@ -5,7 +5,7 @@
 
 #include "rs232.h"
 
-#define DEBUG
+//#define DEBUG
 
 UARTLink::UARTLink(std::string port) {
     com_port = RS232_GetPortnr(port.c_str()); /* /dev/ttyS0 (COM1 on windows) */
