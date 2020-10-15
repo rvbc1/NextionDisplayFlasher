@@ -1,4 +1,4 @@
-#include "STM32Flasher.h"
+#include "NextionFlasher.h"
 
 #include <chrono>
 #include <iostream>
@@ -7,7 +7,7 @@ void printInfo(std::string info) {
     std::cout << info << std::endl;
 }
 
-STM32Flasher::STM32Flasher(std::string port) {
+NextionFlasher::NextionFlasher(std::string port) {
     uart = new UARTLink(port);
     is_port_open = uart->openPort();
     //  uint8_t *buffer = uart->getBuff();
@@ -25,7 +25,7 @@ STM32Flasher::STM32Flasher(std::string port) {
     //readMemoryCommand(0x8000000, 0xFF);
 }
 
-void STM32Flasher::openConnection() {
+void NextionFlasher::openConnection() {
     if (is_port_open) {
        // uart->addDataToBufferTX(START_CODE);
     //    uart->writeData();
@@ -45,7 +45,7 @@ void STM32Flasher::openConnection() {
     }
 }
 
-void STM32Flasher::getCommand() {
+void NextionFlasher::getCommand() {
     if (is_port_open && is_connection_open) {
      //   writeCommand(GET_COMMAND);
         checkResponse();
@@ -55,21 +55,21 @@ void STM32Flasher::getCommand() {
     }
 }
 
-void STM32Flasher::getVersionCommand() {
+void NextionFlasher::getVersionCommand() {
     if (is_port_open && is_connection_open) {
        // writeCommand(GET_VERSION_COMMAND);
         checkResponse();
     }
 }
 
-void STM32Flasher::getIdCommand() {
+void NextionFlasher::getIdCommand() {
     if (is_port_open && is_connection_open) {
        // writeCommand(GET_ID_COMMAND);
         checkResponse();
     }
 }
 
-void STM32Flasher::readMemoryCommand(uint32_t start_address, uint8_t length) {
+void NextionFlasher::readMemoryCommand(uint32_t start_address, uint8_t length) {
     if (is_port_open && is_connection_open) {
        // writeCommand(READ_MEMORY_COMMAND);
         checkResponse();
@@ -91,7 +91,7 @@ void STM32Flasher::readMemoryCommand(uint32_t start_address, uint8_t length) {
     }
 }
 
-void STM32Flasher::goCommand(uint32_t address) {
+void NextionFlasher::goCommand(uint32_t address) {
     if (is_port_open && is_connection_open) {
         //writeCommand(GO_COMMAND);
         checkResponse();
@@ -100,7 +100,7 @@ void STM32Flasher::goCommand(uint32_t address) {
     }
 }
 
-void STM32Flasher::flashCommand(uint32_t start_address, uint8_t *buffer, uint16_t length) {
+void NextionFlasher::flashCommand(uint32_t start_address, uint8_t *buffer, uint16_t length) {
     if (is_port_open && is_connection_open) {
         //writeCommand(WRITE_MEMORY_COMMAND);
         checkResponse();
@@ -119,7 +119,7 @@ void STM32Flasher::flashCommand(uint32_t start_address, uint8_t *buffer, uint16_
     }
 }
 
-void STM32Flasher::eraseCommand() {
+void NextionFlasher::eraseCommand() {
     if (is_port_open && is_connection_open) {
        // writeCommand(ERASE_COMMAND);
         checkResponse();
@@ -129,7 +129,7 @@ void STM32Flasher::eraseCommand() {
     }
 }
 
-void STM32Flasher::writeCommand(std::string command) {
+void NextionFlasher::writeCommand(std::string command) {
     if (is_port_open && is_connection_open) {
         //uart->addDataToBufferTX(command);
         //uart->addDataToBufferTX(~command);
@@ -141,11 +141,11 @@ void STM32Flasher::writeCommand(std::string command) {
     }
 }
 
-void STM32Flasher::flashFile(FileReader::file_struct file) {
+void NextionFlasher::flashFile(FileReader::file_struct file) {
     flashFile(file.data, file.size);
 }
 
-void STM32Flasher::flashFile(uint8_t *data, uint16_t size) {
+void NextionFlasher::flashFile(uint8_t *data, uint16_t size) {
     if (is_port_open && is_connection_open) {
         uint16_t pages = size / 256;
         uint16_t unfull_page_size = size - pages * 256;
@@ -160,7 +160,7 @@ void STM32Flasher::flashFile(uint8_t *data, uint16_t size) {
     }
 }
 
-void STM32Flasher::writeAddress(uint32_t address) {
+void NextionFlasher::writeAddress(uint32_t address) {
     uint8_t xor_checksum = 0x00;
     for (int i = 0; i < sizeof(uint32_t); i++) {
         uint8_t msb_byte = *((uint8_t *)&address + sizeof(uint32_t) - i - 1);
@@ -171,7 +171,7 @@ void STM32Flasher::writeAddress(uint32_t address) {
     uart->writeData();
 }
 
-uint8_t STM32Flasher::checkResponse(ack_pos pos) {
+uint8_t NextionFlasher::checkResponse(ack_pos pos) {
     uint8_t ack_at_right_pos = false;
 
     if (is_port_open) {
@@ -209,8 +209,8 @@ uint8_t STM32Flasher::checkResponse(ack_pos pos) {
     return ack_at_right_pos;
 }
 
-void STM32Flasher::connect() {
+void NextionFlasher::connect() {
 }
 
-void STM32Flasher::readChip() {
+void NextionFlasher::readChip() {
 }

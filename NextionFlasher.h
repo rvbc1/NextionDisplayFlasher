@@ -1,14 +1,14 @@
-#ifndef STM32Flasher_h
-#define STM32Flasher_h
+#ifndef NextionFlasher_h
+#define NextionFlasher_h
 
 #include <string>
 
 #include "FileReader.h"
 #include "UARTLink.h"
 
-class STM32Flasher {
+class NextionFlasher {
    public:
-    STM32Flasher(std::string port);
+    NextionFlasher(std::string port);
 
     void connect();
 

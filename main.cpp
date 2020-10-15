@@ -1,12 +1,12 @@
 
 
 #include "FileReader.h"
-#include "STM32Flasher.h"
+#include "NextionFlasher.h"
 #include "vector"
 
 int main(int argc, char *argv[]) {
     if (argc == 3) {
-        STM32Flasher *flasher = new STM32Flasher(std::string(argv[2]));
+        NextionFlasher *flasher = new NextionFlasher(std::string(argv[2]));
 
         FileReader *file = new FileReader(argv[1]);
 

@@ -12,7 +12,8 @@ UARTLink::UARTLink(std::string port) {
     baud_rate = 9600;                       /* 9600 baud */
 
     reading_buffer.size = writing_buffer.size = 0;
-    reading_buffer.max_size = writing_buffer.max_size = 256;
+    reading_buffer.max_size = 256;
+    writing_buffer.max_size = 4096;
 
     reading_buffer.data = new uint8_t[reading_buffer.max_size];
     writing_buffer.data = new uint8_t[writing_buffer.max_size];
