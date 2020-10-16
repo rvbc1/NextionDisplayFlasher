@@ -108,7 +108,7 @@ int UARTLink::waitForResponse(uint64_t timeout) {
 
     auto end = start;
 
-    std::chrono::milliseconds ms{1000};
+    std::chrono::milliseconds ms{timeout};
 
     reading_buffer.size = 0;
     while (/*(reading_buffer.size == 0) && */ (end - start < ms)) {
@@ -133,7 +133,7 @@ int UARTLink::waitForFirstResponse(uint64_t timeout) {
 
     auto end = start;
 
-    std::chrono::milliseconds ms{1000};
+    std::chrono::milliseconds ms{timeout};
 
     reading_buffer.size = 0;
     while ((reading_buffer.size == 0) && (end - start < ms)) {
