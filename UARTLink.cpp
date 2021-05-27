@@ -58,7 +58,7 @@ void UARTLink::addDataToBufferTX(uint8_t data) {
 }
 
 void UARTLink::addDataToBufferTX(std::string data) {
-    for (int i = 0; i < static_cast<int>(data.size()); i++) {
+    for (std::size_t i = 0; i < data.size(); i++) {
         addDataToBufferTX(data[i]);
     }
 }

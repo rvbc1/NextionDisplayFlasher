@@ -1,6 +1,7 @@
 #include "NextionFlasher.h"
 
 #include <chrono>
+#include <thread>
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -39,21 +40,14 @@ NextionFlasher::NextionFlasher(std::string port) {
 
 void NextionFlasher::connect() {
     if (is_port_open) {
-        printInfo("Connecting", false);
         for (uint32_t i = 0; i < (sizeof(availableBaudRates) / sizeof(*availableBaudRates)); i++) {
             uart->changeBaudRate(availableBaudRates[i]);
-            writeCommand("connect");
-            if (checkConnectResponse())
+            writeCommand(CONNECT_COMMAND);
+            if (checkConnectResponse()) {
+                printInfo(std::to_string(availableBaudRates[i]));
                 break;
+            }
         }
-
-#if defined(__linux__) || defined(__FreeBSD__) || (__Windows__)
-        if (is_connection_open == false) {
-            printInfo("Cannot start comunication with uC");
-            printInfo("Check wiring & set bootloader at chip");
-            exit(1);
-        }
-#endif
     }
 }
 
@@ -72,8 +66,8 @@ uint8_t NextionFlasher::checkConnectResponse() {
         responseParts.push_back(tempString);
     }
 
-    if ((responseParts.size() == INITAL_RESPONE_SIZE) && (responseParts[0] == "comok")) {
-        printInfo("\rConnected to device:");
+    if ((responseParts.size() == INITAL_RESPONE_SIZE) && (responseParts[0] == INITAL_RESPONE_HEADER)) {
+        printInfo("Connected to device:");
         decodeDeviceInfoPacket(responseParts[1]);
         return true;
     }
@@ -121,11 +115,17 @@ void NextionFlasher::flashData(uint8_t *data, uint32_t size) {
 #ifdef DEBUG
     printInfo("Flashing cmd :\"" + flash_cmd + "\"");
 #endif
+    uart->changeBaudRate(connectBaudRate);
+
     writeCommand(flash_cmd);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
     uart->changeBaudRate(flashingBaudRate);
 
     buffer->size = uart->waitForFirstResponse(DEFAULT_RESPONSE_TIMEOUT);
+
+    
 
     if ((buffer->size == 1) && (buffer->data[0] == OK_RESPONSE_CODE)) {
         printInfo("Staring flashing " + std::to_string(size) + " bytes on speed " + std::to_string(flashingBaudRate));
@@ -166,7 +166,6 @@ out:
     }
 }
 
-
-void NextionFlasher::setFlashingBaudRate(int baudRate){
+void NextionFlasher::setFlashingBaudRate(int baudRate) {
     this->flashingBaudRate = baudRate;
 }
